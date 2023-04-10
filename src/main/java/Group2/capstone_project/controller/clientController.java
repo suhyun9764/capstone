@@ -1,15 +1,17 @@
 package Group2.capstone_project.controller;
 
 import Group2.capstone_project.domain.Client;
+import Group2.capstone_project.dto.client.ClientDto;
 import Group2.capstone_project.service.clientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpSession;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 public class clientController {
@@ -20,12 +22,26 @@ public class clientController {
     @Autowired
     public clientController(clientService clientService,PasswordEncoder passwordEncoder){
         this.clientserivce = clientService;
-        this.passwordEncoder=passwordEncoder;
+        this.passwordEncoder =passwordEncoder;
+    }
+    @GetMapping("/client/home")
+    public String main()
+    {
+        return "/client/clienthome";
     }
 
-    @GetMapping("/client/login")
-    public String login(){
-        return "/client/login";
+    @PostMapping("/client/login")
+    public String login(@ModelAttribute ClientDto clientDto, HttpSession Session){
+        Client client = new Client();
+        client.setId(clientDto.getId());
+        client.setPwd(clientDto.getPassword());
+           Optional<Client> result = clientserivce.login(client);
+        if(result!=null) {
+            Session.setAttribute("loginId",result.get().getId());
+            return "/client/main";
+        }else{
+            return "/client/register";
+        }
     }
 
     @GetMapping("/client/register")
@@ -39,17 +55,16 @@ public class clientController {
     }
 
     @PostMapping("/client/join")
-    public String create(clientForm clientForm){
+    public String create(ClientDto ClientDto){
+
         Client client = new Client();
-        client.setId(clientForm.getId());
-        client.setName(clientForm.getName());
-        client.setAge(clientForm.getAge());
-        client.setStudentNumber(clientForm.getStudentNumber());
-        client.setPwd(passwordEncoder.encode(clientForm.getPassword()));
-
+        client.setId(ClientDto.getId());
+        client.setName(ClientDto.getName());
+        client.setAge(ClientDto.getAge());
+        client.setStudentNumber(ClientDto.getStudentNumber());
+        client.setPwd(passwordEncoder.encode(ClientDto.getPassword()));
         clientserivce.join(client);
-
-        return "redirect:/client/login";
+        return "redirect:/client/home";
     }
 
     @GetMapping("/client")
@@ -60,26 +75,42 @@ public class clientController {
     }
 
     @GetMapping("client/findID")
-    public String findID(Model model, clientForm clientForm){
+    public String findID(Model model, @ModelAttribute ClientDto ClientDto){
         Client client = new Client();
-        client.setName(clientForm.getName());
-        client.setStudentNumber(clientForm.getStudentNumber());
-        client.setAge(clientForm.getAge());
-        String result = clientserivce.findId(client.getName(), clientForm.getStudentNumber(), client.getAge());
-        System.out.println(result);
+        client.setName(ClientDto.getName());
+        client.setStudentNumber(ClientDto.getStudentNumber());
+        client.setAge(ClientDto.getAge());
+        String result = clientserivce.findId(client.getName(), ClientDto.getStudentNumber(), client.getAge());
         model.addAttribute("result",result);
         return "client/checkyourId";
     }
 
     @GetMapping("client/findPwd")
-    public String findPwd(Model model, clientForm clientForm){
+    public String findPwd(Model model, ClientDto ClientDto){
         Client client = new Client();
-        client.setName(clientForm.getName());
-        client.setId(clientForm.getId());
-        client.setStudentNumber(clientForm.getStudentNumber());
-        String result = clientserivce.findPwd(client.getName(), client.getId(), clientForm.getStudentNumber());
+        client.setName(ClientDto.getName());
+        client.setId(ClientDto.getId());
+        client.setStudentNumber(ClientDto.getStudentNumber());
+        String result = clientserivce.findPwd(client.getName(), client.getId(), ClientDto.getStudentNumber());
         model.addAttribute("result",result);
         return "client/checkyourPwd";
     }
+    @GetMapping("/client/update")
+        public String updateForm(HttpSession session,Model model){
+        String id = (String)session.getAttribute("loginId");
+        Client client = clientserivce.updateForm(id);
+        model.addAttribute("updateClient",client);
+        return "client/clientinfoupdate";
+    }
 
+    @PostMapping("/client/update")
+    public String updateClinet(@ModelAttribute ClientDto clientDto){
+        Client client = new Client();
+        client.setId(clientDto.getId());
+        client.setName(clientDto.getName());
+        client.setAge(clientDto.getAge());
+        client.setStudentNumber(clientDto.getStudentNumber());
+        clientserivce.updateInfo(client);
+        return "redirect:/client"+client.getId();
+    }
 }

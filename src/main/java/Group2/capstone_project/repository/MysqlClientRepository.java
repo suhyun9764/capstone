@@ -1,6 +1,7 @@
 package Group2.capstone_project.repository;
 
 import Group2.capstone_project.domain.Client;
+import Group2.capstone_project.dto.client.ClientDto;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,20 +36,23 @@ public class MysqlClientRepository implements ClientRepository{
 
     @Override
     public Optional<Client> findPwd(String name, String id, String studentNumber) {
-        String sql = "SELECT * FROM client where name = name and id = id and studentNumber = studentNumber";
-        List<Client> result = jdbcTemplate.query(sql,clientRowMapper());
+        String[] object = {name,id,studentNumber};
+        String sql = "SELECT * FROM client where name = ? and id = ? and studentNumber = ?";
+        List<Client> result = jdbcTemplate.query(sql,clientRowMapper(),object);
         return result.stream().findAny();
     }
-
     @Override
     public List<Client> findAll() {
         String sql = "SELECT * FROM client";
         return jdbcTemplate.query(sql,clientRowMapper());
     }
 
+
     @Override
     public Optional<Client> findById(String id) {
-        return Optional.empty();
+        String sql = "SELECT *FROM client WHERE id =?";
+        List<Client> result = jdbcTemplate.query(sql, clientRowMapper(), id);
+        return result.stream().findAny();
     }
 
     private RowMapper<Client> clientRowMapper(){
@@ -59,14 +63,24 @@ public class MysqlClientRepository implements ClientRepository{
             client.setName(rs.getString("name"));
             client.setStudentNumber(rs.getString("studentNumber"));
             client.setAge(rs.getString("age"));
+            client.setPwd(rs.getString("pwd"));
 
-            System.out.println(rs.getString("id"));
-            System.out.println(rs.getString("name"));
-            System.out.println(rs.getString("studentNumber"));
-            System.out.println(rs.getString("age"));
 
 
             return client;
         };
+    }
+    @Override
+    public Optional<Client> login (Client client){
+        String sql = "SELECT * FROM client where id = ?";
+        List<Client> result = jdbcTemplate.query(sql,clientRowMapper(),client.getId());
+        return result.stream().findAny();
+    }
+
+    @Override
+    public void updateInfo(Client client) {
+        String sql = "UPDATE client SET name= ? , studentNumber =? , age=? WHERE id =?  ";
+        String[] object = {client.getName(),client.getStudentNumber(),client.getAge(),client.getId()};
+        jdbcTemplate.update(sql,client.getName(),client.getStudentNumber(),client.getAge(),client.getId());
     }
 }

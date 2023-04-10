@@ -1,20 +1,27 @@
 package Group2.capstone_project.service;
 
 import Group2.capstone_project.domain.Client;
+import Group2.capstone_project.dto.client.ClientDto;
 import Group2.capstone_project.repository.ClientRepository;
+import Group2.capstone_project.repository.MysqlClientRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import java.util.List;
 import java.util.Optional;
 
 
 public class clientService {
 
+    PasswordEncoder passwordEncoder= new BCryptPasswordEncoder();
+
     private final ClientRepository clientRepository;
 
-    public clientService(ClientRepository clientRepository){
-        this.clientRepository=clientRepository;
+    public clientService(ClientRepository clientRepository) {
+        this.clientRepository = clientRepository;
     }
 
-    public void join(Client client){
+    public void join(Client client) {
         validateDuplicateMember(client);
         clientRepository.save(client);
     }
@@ -26,19 +33,47 @@ public class clientService {
                 });
     }
 
-    public String findId(String clientName, String clientStudentNumber, String clientAge ){
-        Optional<Client> client = clientRepository.findId(clientName,clientStudentNumber,clientAge);
+    public String findId(String clientName, String clientStudentNumber, String clientAge) {
+        Optional<Client> client = clientRepository.findId(clientName, clientStudentNumber, clientAge);
         return client.get().getId();
     }
 
-    public String findPwd(String clientName, String clientId, String clientStudentNumber ){
-        Optional<Client> client = clientRepository.findPwd(clientName,clientId,clientStudentNumber);
+    public String findPwd(String clientName, String clientId, String clientStudentNumber) {
+        Optional<Client> client = clientRepository.findPwd(clientName, clientId, clientStudentNumber);
         return client.get().getPwd();
     }
 
-    public List<Client> findAll(){
+    public List<Client> findAll() {
         return clientRepository.findAll();
     }
 
+    public Optional<Client> login(Client client) {
+        Optional<Client> result = clientRepository.login(client);
+        if (result.isPresent()) {
 
+            Client chkclient = result.get();
+            if (passwordEncoder.matches(client.getPwd(),chkclient.getPwd())) {
+                return result;
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
+    public Client updateForm(String id){
+        if(clientRepository.findById(id).isPresent()) {
+            Client client = clientRepository.findById(id).get();
+            return client;
+        }
+        else{
+            return null;
+        }
+
+    }
+
+    public void updateInfo(Client client){
+        clientRepository.updateInfo(client);
+    }
 }

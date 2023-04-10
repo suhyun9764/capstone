@@ -1,6 +1,7 @@
 package Group2.capstone_project.repository;
 
 import Group2.capstone_project.domain.Client;
+import Group2.capstone_project.dto.client.ClientDto;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -27,6 +28,16 @@ public class MemoryClientRepository implements ClientRepository{
     @Override
     public Optional<Client> findById(String id) {
         return clients.stream().filter(client -> client.getId().equals(id)).findAny();
+
+    }
+
+    @Override
+    public Optional<Client> login(Client client) {
+        return Optional.empty();
+    }
+
+    @Override
+    public void updateInfo(Client client) {
 
     }
 

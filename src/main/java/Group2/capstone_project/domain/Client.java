@@ -1,6 +1,6 @@
 package Group2.capstone_project.domain;
 
-public class Client {
+public class  Client {
     private String id;
     private String name;
     private String age;

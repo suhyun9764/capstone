@@ -1,9 +1,15 @@
-package Group2.capstone_project.controller;
+package Group2.capstone_project.dto.client;
 
+import Group2.capstone_project.domain.Client;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-public class clientForm {
+public class ClientDto {
 
+    private final PasswordEncoder passwordEncoder;
+
+    public ClientDto(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
 
     private String id;
     private String name;
@@ -23,7 +29,6 @@ public class clientForm {
 
     public String getName() {
 
-        System.out.println("form"+id);
         return name;
     }
 
