@@ -72,7 +72,6 @@ public class clientService {
         }
 
     }
-
     public void updateInfo(Client client){
         clientRepository.updateInfo(client);
     }
