@@ -7,11 +7,11 @@
       <thead>
       <tr>
         <th>#</th>
-        <th>회원목록</th>
+        <th>마이페이지</th>
       </tr>
       </thead>
       <tbody>
-      <tr th:each="client : ${clients}">
+      <tr th:each="client : ${client}">
         <td th:text="${client.id}"></td>
         <td th:text="${client.name}"></td>
         <td th:text="${client.studentNumber}"></td>
@@ -20,6 +20,6 @@
       </tbody>
     </table>
   </div>
-</div> <!-- /container ->
+</div> <!-- /container -->
 </body>
 </html>

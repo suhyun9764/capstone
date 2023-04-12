@@ -104,13 +104,28 @@ public class clientController {
     }
 
     @PostMapping("/client/update")
-    public String updateClinet(@ModelAttribute ClientDto clientDto){
+    public String updateClinet(Model model,@ModelAttribute ClientDto clientDto){
         Client client = new Client();
         client.setId(clientDto.getId());
         client.setName(clientDto.getName());
         client.setAge(clientDto.getAge());
         client.setStudentNumber(clientDto.getStudentNumber());
         clientserivce.updateInfo(client);
-        return "redirect:/client"+client.getId();
+        model.addAttribute("client",client);
+        return "/client/updateresult";
+    }
+
+    @GetMapping("/client/logout")
+
+    public String logOut(HttpSession httpSession){
+        httpSession.invalidate();
+        return "client/clienthome";
+    }
+
+
+    @GetMapping("/board/home")
+
+    public String boardHome(){
+        return "/board/home";
     }
 }
